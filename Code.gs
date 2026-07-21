@@ -42,6 +42,34 @@ function guardarPrompt(data) {
   }
 }
 
+function editarPrompt(rowIndex, nombre, data) {
+  try {
+    if (!data.titulo || !data.contexto || !data.rol || !data.accion || !data.formato || !data.tono) {
+      return { status: 'error', message: 'Completa todos los campos antes de guardar.' };
+    }
+    const ss = SpreadsheetApp.openById(SHEET_ID);
+    const sheet = obtenerHojaPrompts_(ss);
+    // Verifica que la fila pertenezca a quien intenta editar.
+    const filaNombre = sheet.getRange(rowIndex, 2).getValue();
+    if (String(filaNombre).trim().toLowerCase() !== String(nombre).trim().toLowerCase()) {
+      return { status: 'error', message: 'Solo puedes editar tus propios prompts.' };
+    }
+    // Columnas 3..8: Titulo, Contexto, Rol, Accion, Formato, Tono
+    // (No se toca Timestamp ni Nombre.)
+    sheet.getRange(rowIndex, 3, 1, 6).setValues([[
+      data.titulo.trim(),
+      data.contexto.trim(),
+      data.rol.trim(),
+      data.accion.trim(),
+      data.formato.trim(),
+      data.tono.trim()
+    ]]);
+    return { status: 'success', message: 'Prompt actualizado.' };
+  } catch (e) {
+    return { status: 'error', message: 'Error: ' + e.message };
+  }
+}
+
 function obtenerPrompts() {
   try {
     const ss = SpreadsheetApp.openById(SHEET_ID);

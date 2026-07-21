@@ -28,6 +28,24 @@ Cambios secundarios:
   rompía con comillas u otros caracteres especiales en el contenido).
 - Se retiró el toast de diagnóstico temporal ("Se cargaron X prompts").
 
+## Mejoras de UX/UI
+
+- **Editar prompt**: cada prompt propio abre una hoja modal con los campos
+  C.R.A.F.T. precargados. Backend: `editarPrompt(rowIndex, nombre, data)`, que
+  valida propiedad (igual que `eliminarPrompt`) antes de actualizar la fila.
+- **Permisos claros**: los botones **Editar** y **Eliminar** solo aparecen en
+  tus propios prompts. En la Biblioteca, los prompts de otras personas son de
+  solo lectura (solo **Copiar**) — nadie puede borrar los tuyos. El backend
+  también rechaza editar/eliminar filas ajenas.
+- **Confirmación antes de eliminar** (modal), en vez del borrado instantáneo.
+- **Estados de carga** (spinner) al traer los prompts.
+- **Tarjetas** con autor, fecha, vista previa del contexto y chevron animado.
+- **Buscador** con contador de resultados y botón para limpiar.
+- **Formulario** con chips C.R.A.F.T., ayuda contextual y botón "Limpiar campos".
+- **Cambiar nombre** desde la insignia de usuario en la cabecera.
+- Micro-interacciones (feedback "Copiado ✓", animaciones) y etiquetas de
+  accesibilidad en botones de ícono.
+
 ## Después de cualquier cambio: RE-DESPLEGAR
 
 Editar el código en el editor de Apps Script **no** actualiza la URL `/exec`.

@@ -24,88 +24,154 @@
     }
   }
 </script>
+<style>
+  /* Spinner de carga */
+  @keyframes dif-spin { to { transform: rotate(360deg); } }
+  .dif-spin { animation: dif-spin .7s linear infinite; }
+  /* Rotación del chevron al expandir */
+  .chev { transition: transform .2s ease; }
+  .chev.abierto { transform: rotate(180deg); }
+  /* Transición de las hojas modales */
+  .sheet { transition: opacity .2s ease; }
+  .sheet-panel { transition: transform .25s cubic-bezier(.2,.8,.2,1); }
+  /* Aparición de tarjetas */
+  @keyframes dif-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .card-in { animation: dif-in .25s ease both; }
+</style>
 </head>
 <body class="bg-dif-purple/5 min-h-screen pb-40 text-dif-black" style="color-scheme: light;">
 
-<!-- Gate: registro de nombre -->
+<!-- ============ Gate: registro de nombre ============ -->
 <div id="gate" class="fixed inset-0 bg-white z-50 overflow-y-auto">
   <div class="w-full max-w-xs mx-auto px-4 pt-20 pb-10">
     <div class="h-1.5 w-12 bg-dif-purple rounded-full mb-4"></div>
     <p class="text-xs font-bold text-dif-purple mb-1 tracking-wide">TALLER ANIA · DIFERENZIA</p>
-    <h1 class="text-xl font-bold text-dif-black mb-1">Biblioteca de Prompts</h1>
+    <h1 class="text-2xl font-bold text-dif-black mb-1">Biblioteca de Prompts</h1>
     <p class="text-sm text-dif-darkgray mb-6">Ingresa tu nombre para empezar a guardar tus prompts C.R.A.F.T.</p>
-    <input id="gateNombre" type="text" placeholder="Tu nombre completo"
+    <label for="gateNombre" class="block text-xs font-bold text-dif-darkgray mb-1">Tu nombre</label>
+    <input id="gateNombre" type="text" placeholder="Nombre y apellido" autocomplete="name"
       onkeydown="if(event.key==='Enter'){entrar();}"
-      class="w-full rounded-xl border border-gray-200 px-3 py-2 text-base text-dif-black bg-white focus:outline-none focus:ring-2 focus:ring-dif-purple mb-3">
+      class="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-base text-dif-black bg-white focus:outline-none focus:ring-2 focus:ring-dif-purple mb-3">
     <button id="gateBtn" onclick="entrar()"
-      class="w-full bg-dif-purple text-white rounded-xl px-4 py-3 font-semibold">Guardar</button>
+      class="w-full bg-dif-purple text-white rounded-xl px-4 py-3 font-semibold active:scale-[.99] transition">Empezar</button>
+    <p class="text-xs text-dif-lightgray mt-3 text-center">Tu nombre se guarda solo en este dispositivo.</p>
   </div>
 </div>
 
-<!-- App -->
+<!-- ============ App ============ -->
 <div id="app" class="hidden w-full max-w-xl mx-auto px-4 py-6">
+
+  <!-- Cabecera -->
   <div class="rounded-2xl bg-dif-purple p-4 mb-5 flex items-center justify-between gap-2">
     <div class="min-w-0">
       <p class="text-xs font-bold text-white/70 tracking-wide">TALLER ANIA</p>
       <h1 class="text-xl font-bold text-white truncate">Biblioteca de Prompts</h1>
     </div>
-    <span id="userBadge" class="shrink-0 max-w-[40%] truncate bg-dif-green text-dif-black rounded-full px-3 py-1 text-xs font-bold"></span>
+    <button onclick="cambiarNombre()" title="Cambiar nombre" aria-label="Cambiar nombre"
+      class="shrink-0 max-w-[45%] flex items-center gap-1 bg-dif-green text-dif-black rounded-full pl-3 pr-2 py-1 text-xs font-bold active:scale-95 transition">
+      <span id="userBadge" class="truncate"></span>
+      <span class="material-icons text-sm shrink-0">expand_more</span>
+    </button>
   </div>
 
-  <!-- Nuevo prompt -->
+  <!-- ===== Nuevo prompt ===== -->
   <section id="sec-nuevo" class="section-page space-y-3">
-    <div class="rounded-2xl shadow-sm bg-white border-l-4 border-dif-purple p-4 space-y-3">
-      <p class="text-sm font-bold text-dif-black">Título del prompt</p>
-      <textarea id="fTitulo" rows="2" placeholder="Ej: Resumen de reunión de equipo"
-        class="w-full rounded-xl border border-gray-200 px-3 py-2 text-base text-dif-black bg-white focus:outline-none focus:ring-2 focus:ring-dif-purple"></textarea>
+    <div class="rounded-2xl bg-dif-yellow/40 border border-dif-yellow px-4 py-3">
+      <p class="text-sm text-dif-black"><span class="font-bold">C.R.A.F.T.</span> es la receta de un buen prompt: <span class="font-semibold">C</span>ontexto, <span class="font-semibold">R</span>ol, <span class="font-semibold">A</span>cción, <span class="font-semibold">F</span>ormato y <span class="font-semibold">T</span>ono. Completa cada campo.</p>
+    </div>
 
-      <p class="text-sm font-bold text-dif-black pt-1">Contexto</p>
-      <textarea id="fContexto" rows="3" placeholder="¿Qué información de fondo necesita el modelo?"
-        class="w-full rounded-xl border border-gray-200 px-3 py-2 text-base text-dif-black bg-white focus:outline-none focus:ring-2 focus:ring-dif-purple"></textarea>
+    <div class="rounded-2xl shadow-sm bg-white border-l-4 border-dif-purple p-4 space-y-4">
+      <div>
+        <label for="fTitulo" class="flex items-center gap-2 text-sm font-bold text-dif-black mb-1">
+          <span class="material-icons text-dif-purple text-base">title</span>Título del prompt
+        </label>
+        <textarea id="fTitulo" rows="2" placeholder="Ej: Resumen de reunión de equipo"
+          class="w-full rounded-xl border border-gray-200 px-3 py-2 text-base text-dif-black bg-white focus:outline-none focus:ring-2 focus:ring-dif-purple"></textarea>
+      </div>
 
-      <p class="text-sm font-bold text-dif-black pt-1">Rol</p>
-      <textarea id="fRol" rows="2" placeholder="¿Qué rol debe asumir el modelo?"
-        class="w-full rounded-xl border border-gray-200 px-3 py-2 text-base text-dif-black bg-white focus:outline-none focus:ring-2 focus:ring-dif-purple"></textarea>
+      <div>
+        <label for="fContexto" class="flex items-center gap-2 text-sm font-bold text-dif-black mb-1">
+          <span class="craft-chip">C</span>Contexto
+        </label>
+        <textarea id="fContexto" rows="3" placeholder="¿Qué información de fondo necesita el modelo?"
+          class="w-full rounded-xl border border-gray-200 px-3 py-2 text-base text-dif-black bg-white focus:outline-none focus:ring-2 focus:ring-dif-purple"></textarea>
+      </div>
 
-      <p class="text-sm font-bold text-dif-black pt-1">Acción</p>
-      <textarea id="fAccion" rows="3" placeholder="¿Qué debe hacer exactamente?"
-        class="w-full rounded-xl border border-gray-200 px-3 py-2 text-base text-dif-black bg-white focus:outline-none focus:ring-2 focus:ring-dif-purple"></textarea>
+      <div>
+        <label for="fRol" class="flex items-center gap-2 text-sm font-bold text-dif-black mb-1">
+          <span class="craft-chip">R</span>Rol
+        </label>
+        <textarea id="fRol" rows="2" placeholder="¿Qué rol debe asumir el modelo?"
+          class="w-full rounded-xl border border-gray-200 px-3 py-2 text-base text-dif-black bg-white focus:outline-none focus:ring-2 focus:ring-dif-purple"></textarea>
+      </div>
 
-      <p class="text-sm font-bold text-dif-black pt-1">Formato</p>
-      <textarea id="fFormato" rows="2" placeholder="¿En qué formato debe responder?"
-        class="w-full rounded-xl border border-gray-200 px-3 py-2 text-base text-dif-black bg-white focus:outline-none focus:ring-2 focus:ring-dif-purple"></textarea>
+      <div>
+        <label for="fAccion" class="flex items-center gap-2 text-sm font-bold text-dif-black mb-1">
+          <span class="craft-chip">A</span>Acción
+        </label>
+        <textarea id="fAccion" rows="3" placeholder="¿Qué debe hacer exactamente?"
+          class="w-full rounded-xl border border-gray-200 px-3 py-2 text-base text-dif-black bg-white focus:outline-none focus:ring-2 focus:ring-dif-purple"></textarea>
+      </div>
 
-      <p class="text-sm font-bold text-dif-black pt-1">Tono</p>
-      <textarea id="fTono" rows="2" placeholder="¿Con qué tono debe responder?"
-        class="w-full rounded-xl border border-gray-200 px-3 py-2 text-base text-dif-black bg-white focus:outline-none focus:ring-2 focus:ring-dif-purple"></textarea>
+      <div>
+        <label for="fFormato" class="flex items-center gap-2 text-sm font-bold text-dif-black mb-1">
+          <span class="craft-chip">F</span>Formato
+        </label>
+        <textarea id="fFormato" rows="2" placeholder="¿En qué formato debe responder?"
+          class="w-full rounded-xl border border-gray-200 px-3 py-2 text-base text-dif-black bg-white focus:outline-none focus:ring-2 focus:ring-dif-purple"></textarea>
+      </div>
+
+      <div>
+        <label for="fTono" class="flex items-center gap-2 text-sm font-bold text-dif-black mb-1">
+          <span class="craft-chip">T</span>Tono
+        </label>
+        <textarea id="fTono" rows="2" placeholder="¿Con qué tono debe responder?"
+          class="w-full rounded-xl border border-gray-200 px-3 py-2 text-base text-dif-black bg-white focus:outline-none focus:ring-2 focus:ring-dif-purple"></textarea>
+      </div>
+
+      <button onclick="limpiarFormulario()" class="text-dif-lightgray text-xs font-semibold flex items-center gap-1 pt-1">
+        <span class="material-icons text-sm">backspace</span>Limpiar campos
+      </button>
     </div>
   </section>
 
-  <!-- Mis prompts -->
+  <!-- ===== Mis prompts ===== -->
   <section id="sec-mis" class="section-page hidden space-y-3">
-    <div class="flex justify-end">
-      <button onclick="cargarPrompts()" class="text-dif-purple text-xs font-semibold flex items-center gap-1">
+    <div class="flex items-center justify-between">
+      <p class="text-sm font-bold text-dif-black">Mis prompts</p>
+      <button onclick="cargarPrompts()" class="text-dif-purple text-xs font-semibold flex items-center gap-1 active:scale-95 transition">
         <span class="material-icons text-sm">refresh</span>Actualizar
       </button>
     </div>
-    <div id="misVacio" class="hidden rounded-2xl bg-white p-6 text-center text-sm text-dif-darkgray">
-      Aún no guardas prompts. Crea el primero en la pestaña "Nuevo".
+    <div id="misVacio" class="hidden rounded-2xl bg-white p-8 text-center">
+      <span class="material-icons text-dif-lightgray text-4xl">edit_note</span>
+      <p class="text-sm text-dif-darkgray mt-2">Aún no guardas prompts.<br>Crea el primero en la pestaña "Nuevo".</p>
     </div>
     <div id="misLista" class="space-y-3"></div>
   </section>
 
-  <!-- Biblioteca grupal -->
+  <!-- ===== Biblioteca grupal ===== -->
   <section id="sec-biblioteca" class="section-page hidden space-y-3">
-    <div class="flex justify-end">
-      <button onclick="cargarPrompts()" class="text-dif-purple text-xs font-semibold flex items-center gap-1">
+    <div class="flex items-center justify-between">
+      <p class="text-sm font-bold text-dif-black">Biblioteca del grupo</p>
+      <button onclick="cargarPrompts()" class="text-dif-purple text-xs font-semibold flex items-center gap-1 active:scale-95 transition">
         <span class="material-icons text-sm">refresh</span>Actualizar
       </button>
     </div>
-    <input id="buscador" type="text" placeholder="Buscar por título, autor o contenido..."
-      oninput="filtrarBiblioteca()"
-      class="w-full rounded-xl border border-gray-200 px-3 py-2 text-base text-dif-black bg-white focus:outline-none focus:ring-2 focus:ring-dif-purple">
-    <div id="bibVacio" class="hidden rounded-2xl bg-white p-6 text-center text-sm text-dif-darkgray">
-      Todavía no hay prompts en la biblioteca del grupo.
+    <div class="relative">
+      <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-dif-lightgray text-lg pointer-events-none">search</span>
+      <input id="buscador" type="text" placeholder="Buscar por título, autor o contenido..."
+        oninput="filtrarBiblioteca()"
+        class="w-full rounded-xl border border-gray-200 pl-10 pr-9 py-2.5 text-base text-dif-black bg-white focus:outline-none focus:ring-2 focus:ring-dif-purple">
+      <button id="btnClearBuscar" onclick="limpiarBuscador()" aria-label="Limpiar búsqueda"
+        class="hidden absolute right-2 top-1/2 -translate-y-1/2 text-dif-lightgray active:scale-90 transition">
+        <span class="material-icons text-lg">close</span>
+      </button>
+    </div>
+    <p id="bibConteo" class="hidden text-xs text-dif-lightgray"></p>
+    <div id="bibVacio" class="hidden rounded-2xl bg-white p-8 text-center">
+      <span class="material-icons text-dif-lightgray text-4xl">groups</span>
+      <p class="text-sm text-dif-darkgray mt-2">Todavía no hay prompts en la biblioteca del grupo.</p>
     </div>
     <div id="bibLista" class="space-y-3"></div>
   </section>
@@ -113,7 +179,9 @@
   <!-- Barra de acción flotante (solo visible en "Nuevo") -->
   <div id="actionbar" class="fixed left-0 right-0 z-40 w-full max-w-xl mx-auto px-4" style="bottom: calc(70px + env(safe-area-inset-bottom));">
     <button id="submitBtn" onclick="handleSubmit()"
-      class="w-full bg-dif-purple text-white rounded-xl px-4 py-3 font-semibold shadow-lg">Guardar prompt</button>
+      class="w-full bg-dif-purple text-white rounded-xl px-4 py-3 font-semibold shadow-lg active:scale-[.99] transition flex items-center justify-center gap-2">
+      <span class="material-icons text-base">save</span>Guardar prompt
+    </button>
   </div>
 
   <!-- Nav -->
@@ -131,17 +199,76 @@
   </nav>
 </div>
 
-<div id="toast" style="opacity:0;" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-xl text-sm font-semibold shadow-lg transition-opacity duration-300 max-w-[90vw] text-center"></div>
+<!-- ============ Modal: editar prompt ============ -->
+<div id="editModal" class="sheet hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center" style="opacity:0;">
+  <div class="absolute inset-0 bg-black/40" onclick="cerrarEditor()"></div>
+  <div class="sheet-panel relative w-full max-w-xl bg-white rounded-t-2xl sm:rounded-2xl max-h-[90vh] overflow-y-auto" style="transform: translateY(100%);">
+    <div class="sticky top-0 bg-white flex items-center justify-between px-4 py-3 border-b border-gray-100">
+      <h2 class="text-base font-bold text-dif-black">Editar prompt</h2>
+      <button onclick="cerrarEditor()" aria-label="Cerrar" class="text-dif-lightgray active:scale-90 transition">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+    <div class="p-4 space-y-4">
+      <div>
+        <label for="eTitulo" class="flex items-center gap-2 text-sm font-bold text-dif-black mb-1"><span class="material-icons text-dif-purple text-base">title</span>Título</label>
+        <textarea id="eTitulo" rows="2" class="w-full rounded-xl border border-gray-200 px-3 py-2 text-base text-dif-black bg-white focus:outline-none focus:ring-2 focus:ring-dif-purple"></textarea>
+      </div>
+      <div><label for="eContexto" class="flex items-center gap-2 text-sm font-bold text-dif-black mb-1"><span class="craft-chip">C</span>Contexto</label>
+        <textarea id="eContexto" rows="3" class="w-full rounded-xl border border-gray-200 px-3 py-2 text-base text-dif-black bg-white focus:outline-none focus:ring-2 focus:ring-dif-purple"></textarea></div>
+      <div><label for="eRol" class="flex items-center gap-2 text-sm font-bold text-dif-black mb-1"><span class="craft-chip">R</span>Rol</label>
+        <textarea id="eRol" rows="2" class="w-full rounded-xl border border-gray-200 px-3 py-2 text-base text-dif-black bg-white focus:outline-none focus:ring-2 focus:ring-dif-purple"></textarea></div>
+      <div><label for="eAccion" class="flex items-center gap-2 text-sm font-bold text-dif-black mb-1"><span class="craft-chip">A</span>Acción</label>
+        <textarea id="eAccion" rows="3" class="w-full rounded-xl border border-gray-200 px-3 py-2 text-base text-dif-black bg-white focus:outline-none focus:ring-2 focus:ring-dif-purple"></textarea></div>
+      <div><label for="eFormato" class="flex items-center gap-2 text-sm font-bold text-dif-black mb-1"><span class="craft-chip">F</span>Formato</label>
+        <textarea id="eFormato" rows="2" class="w-full rounded-xl border border-gray-200 px-3 py-2 text-base text-dif-black bg-white focus:outline-none focus:ring-2 focus:ring-dif-purple"></textarea></div>
+      <div><label for="eTono" class="flex items-center gap-2 text-sm font-bold text-dif-black mb-1"><span class="craft-chip">T</span>Tono</label>
+        <textarea id="eTono" rows="2" class="w-full rounded-xl border border-gray-200 px-3 py-2 text-base text-dif-black bg-white focus:outline-none focus:ring-2 focus:ring-dif-purple"></textarea></div>
+    </div>
+    <div class="sticky bottom-0 bg-white border-t border-gray-100 p-4 flex gap-2" style="padding-bottom: max(1rem, env(safe-area-inset-bottom));">
+      <button onclick="cerrarEditor()" class="flex-1 border border-gray-200 text-dif-darkgray rounded-xl px-4 py-3 font-semibold active:scale-[.99] transition">Cancelar</button>
+      <button id="editSaveBtn" onclick="guardarEdicion()" class="flex-1 bg-dif-purple text-white rounded-xl px-4 py-3 font-semibold active:scale-[.99] transition">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Modal: confirmar eliminación ============ -->
+<div id="confirmModal" class="sheet hidden fixed inset-0 z-50 flex items-center justify-center px-4" style="opacity:0;">
+  <div class="absolute inset-0 bg-black/40" onclick="cerrarConfirm()"></div>
+  <div class="relative w-full max-w-sm bg-white rounded-2xl p-5 text-center">
+    <span class="material-icons text-dif-orange text-4xl">delete_outline</span>
+    <h2 class="text-base font-bold text-dif-black mt-1">¿Eliminar este prompt?</h2>
+    <p class="text-sm text-dif-darkgray mt-1 mb-4">Esta acción no se puede deshacer.</p>
+    <div class="flex gap-2">
+      <button onclick="cerrarConfirm()" class="flex-1 border border-gray-200 text-dif-darkgray rounded-xl px-4 py-2.5 font-semibold active:scale-[.99] transition">Cancelar</button>
+      <button id="confirmDelBtn" onclick="confirmarEliminar()" class="flex-1 bg-dif-orange text-white rounded-xl px-4 py-2.5 font-semibold active:scale-[.99] transition">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" style="opacity:0;" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-[60] px-4 py-2 rounded-xl text-sm font-semibold shadow-lg transition-opacity duration-300 max-w-[90vw] text-center"></div>
+
+<style>
+  .craft-chip {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 1.25rem; height: 1.25rem; border-radius: 9999px;
+    background: #8584C1; color: #fff; font-size: .7rem; font-weight: 700;
+  }
+</style>
 
 <script>
 let currentUser = '';
 let allPrompts = [];
+let editRowIndex = null;   // fila en edición
+let deleteRowIndex = null; // fila pendiente de eliminar
 
 window.onload = function() {
   const saved = localStorage.getItem('ania_nombre');
   if (saved) {
     currentUser = saved;
     iniciarApp();
+  } else {
+    document.getElementById('gateNombre').focus();
   }
 };
 
@@ -160,12 +287,30 @@ function iniciarApp() {
   cargarPrompts();
 }
 
+function cambiarNombre() {
+  const nuevo = prompt('¿Con qué nombre quieres continuar?', currentUser);
+  if (nuevo === null) return;
+  const limpio = nuevo.trim();
+  if (!limpio) { showToast('El nombre no puede quedar vacío.', 'error'); return; }
+  currentUser = limpio;
+  localStorage.setItem('ania_nombre', limpio);
+  document.getElementById('userBadge').textContent = limpio;
+  renderMisPrompts();
+  renderBiblioteca(allPrompts);
+  showToast('Nombre actualizado.', 'success');
+}
+
 function showPage(name, btn) {
   document.querySelectorAll('.section-page').forEach(s => s.classList.add('hidden'));
   document.getElementById('sec-' + name).classList.remove('hidden');
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.replace('text-dif-purple', 'text-dif-lightgray'));
   btn.classList.replace('text-dif-lightgray', 'text-dif-purple');
   document.getElementById('actionbar').classList.toggle('hidden', name !== 'nuevo');
+}
+
+function limpiarFormulario() {
+  ['fTitulo','fContexto','fRol','fAccion','fFormato','fTono'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('fTitulo').focus();
 }
 
 function handleSubmit() {
@@ -183,17 +328,18 @@ function handleSubmit() {
     return;
   }
   const btn = document.getElementById('submitBtn');
+  const original = btn.innerHTML;
   btn.disabled = true;
-  btn.textContent = 'Guardando...';
+  btn.innerHTML = '<span class="material-icons text-base dif-spin">autorenew</span>Guardando...';
   btn.classList.add('opacity-60', 'cursor-not-allowed');
 
   google.script.run
     .withSuccessHandler((res) => {
       btn.disabled = false;
-      btn.textContent = 'Guardar prompt';
+      btn.innerHTML = original;
       btn.classList.remove('opacity-60', 'cursor-not-allowed');
       if (res.status === 'success') {
-        ['fTitulo','fContexto','fRol','fAccion','fFormato','fTono'].forEach(id => document.getElementById(id).value = '');
+        limpiarFormulario();
         showToast(res.message, 'success');
         cargarPrompts();
       } else {
@@ -202,32 +348,49 @@ function handleSubmit() {
     })
     .withFailureHandler((err) => {
       btn.disabled = false;
-      btn.textContent = 'Guardar prompt';
+      btn.innerHTML = original;
       btn.classList.remove('opacity-60', 'cursor-not-allowed');
       showToast('Error al guardar: ' + err.message, 'error');
     })
     .guardarPrompt(data);
 }
 
+function mostrarCargando() {
+  const skel = `
+    <div class="rounded-2xl bg-white shadow-sm p-4 flex items-center gap-3 text-dif-lightgray">
+      <span class="material-icons dif-spin">autorenew</span>
+      <span class="text-sm">Cargando prompts...</span>
+    </div>`;
+  document.getElementById('misVacio').classList.add('hidden');
+  document.getElementById('bibVacio').classList.add('hidden');
+  document.getElementById('misLista').innerHTML = skel;
+  document.getElementById('bibLista').innerHTML = skel;
+}
+
 function cargarPrompts() {
+  mostrarCargando();
   google.script.run
     .withSuccessHandler((res) => {
       if (res.status !== 'success') {
         showToast('Error del servidor: ' + res.message, 'error');
+        document.getElementById('misLista').innerHTML = '';
+        document.getElementById('bibLista').innerHTML = '';
         return;
       }
       allPrompts = res.data || [];
       renderMisPrompts();
-      renderBiblioteca(allPrompts);
+      filtrarBiblioteca();
     })
     .withFailureHandler((err) => {
+      document.getElementById('misLista').innerHTML = '';
+      document.getElementById('bibLista').innerHTML = '';
       showToast('Error al cargar prompts: ' + err.message, 'error');
     })
     .obtenerPrompts();
 }
 
 function renderMisPrompts() {
-  const mios = allPrompts.filter(p => String(p.Nombre).trim().toLowerCase() === currentUser.trim().toLowerCase());
+  const mios = allPrompts.filter(p => esDe(p, currentUser));
   const lista = document.getElementById('misLista');
   document.getElementById('misVacio').classList.toggle('hidden', mios.length > 0);
   lista.innerHTML = mios.map(p => tarjetaPrompt(p, 'mis')).join('');
@@ -235,79 +398,235 @@ function renderMisPrompts() {
 
 function renderBiblioteca(data) {
   const lista = document.getElementById('bibLista');
-  document.getElementById('bibVacio').classList.toggle('hidden', data.length > 0);
+  document.getElementById('bibVacio').classList.toggle('hidden', data.length > 0 || allPrompts.length === 0);
   lista.innerHTML = data.map(p => tarjetaPrompt(p, 'biblioteca')).join('');
 }
 
 function filtrarBiblioteca() {
-  const q = document.getElementById('buscador').value.toLowerCase();
-  const filtrado = allPrompts.filter(p =>
-    Object.values(p).some(v => String(v).toLowerCase().includes(q))
-  );
+  const q = document.getElementById('buscador').value.trim().toLowerCase();
+  document.getElementById('btnClearBuscar').classList.toggle('hidden', q === '');
+  const filtrado = q
+    ? allPrompts.filter(p => Object.values(p).some(v => String(v).toLowerCase().includes(q)))
+    : allPrompts;
   renderBiblioteca(filtrado);
+  const conteo = document.getElementById('bibConteo');
+  if (allPrompts.length === 0) {
+    conteo.classList.add('hidden');
+  } else {
+    conteo.classList.remove('hidden');
+    conteo.textContent = q
+      ? `${filtrado.length} de ${allPrompts.length} prompt(s)`
+      : `${allPrompts.length} prompt(s) en total`;
+  }
+}
+
+function limpiarBuscador() {
+  document.getElementById('buscador').value = '';
+  filtrarBiblioteca();
+}
+
+function esDe(p, nombre) {
+  return String(p.Nombre).trim().toLowerCase() === String(nombre).trim().toLowerCase();
+}
+
+function formatearFecha(ts) {
+  const m = String(ts || '').match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/);
+  if (!m) return '';
+  const meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  return `${parseInt(m[3],10)} ${meses[parseInt(m[2],10)-1]} ${m[1]} · ${m[4]}:${m[5]}`;
 }
 
 function tarjetaPrompt(p, contexto) {
   const id = 'p' + p.rowIndex + '_' + contexto;
-  const esMio = String(p.Nombre).trim().toLowerCase() === currentUser.trim().toLowerCase();
+  const esMio = esDe(p, currentUser);
   const bordeColor = contexto === 'mis' ? 'border-dif-orange' : 'border-dif-green';
+  const fecha = formatearFecha(p.Timestamp);
+  const fila = `
+    <div class="space-y-2 text-sm text-dif-darkgray">
+      <p class="break-words"><span class="font-semibold text-dif-black">Contexto:</span> ${escapeHtml(p.Contexto)}</p>
+      <p class="break-words"><span class="font-semibold text-dif-black">Rol:</span> ${escapeHtml(p.Rol)}</p>
+      <p class="break-words"><span class="font-semibold text-dif-black">Acción:</span> ${escapeHtml(p.Accion)}</p>
+      <p class="break-words"><span class="font-semibold text-dif-black">Formato:</span> ${escapeHtml(p.Formato)}</p>
+      <p class="break-words"><span class="font-semibold text-dif-black">Tono:</span> ${escapeHtml(p.Tono)}</p>
+    </div>`;
   return `
-    <div class="rounded-2xl shadow-sm bg-white border-l-4 ${bordeColor} p-4">
+    <div class="card-in rounded-2xl shadow-sm bg-white border-l-4 ${bordeColor} p-4">
       <div class="flex items-start justify-between gap-2 cursor-pointer" onclick="toggleDetalle('${id}')">
         <div class="min-w-0">
           <p class="text-sm font-bold text-dif-black break-words">${escapeHtml(p.Titulo)}</p>
-          ${contexto === 'biblioteca' ? `<span class="inline-block mt-1 bg-dif-yellow text-dif-black rounded-full px-2 py-0.5 text-xs font-bold">${escapeHtml(p.Nombre)}</span>` : ''}
+          <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1">
+            ${contexto === 'biblioteca' ? `<span class="inline-flex items-center gap-1 bg-dif-yellow text-dif-black rounded-full px-2 py-0.5 text-xs font-bold"><span class="material-icons text-xs">person</span>${escapeHtml(p.Nombre)}</span>` : ''}
+            ${fecha ? `<span class="text-xs text-dif-lightgray">${fecha}</span>` : ''}
+          </div>
+          <p class="text-xs text-dif-darkgray mt-1 line-clamp-1 detalle-preview" data-for="${id}">${escapeHtml(p.Contexto)}</p>
         </div>
-        <span class="material-icons text-dif-lightgray text-lg shrink-0">expand_more</span>
+        <span class="material-icons text-dif-lightgray text-lg shrink-0 chev" id="chev-${id}">expand_more</span>
       </div>
-      <div id="${id}" class="hidden mt-3 space-y-2 text-sm text-dif-darkgray border-t border-gray-100 pt-3">
-        <p class="break-words"><span class="font-semibold text-dif-black">Contexto:</span> ${escapeHtml(p.Contexto)}</p>
-        <p class="break-words"><span class="font-semibold text-dif-black">Rol:</span> ${escapeHtml(p.Rol)}</p>
-        <p class="break-words"><span class="font-semibold text-dif-black">Acción:</span> ${escapeHtml(p.Accion)}</p>
-        <p class="break-words"><span class="font-semibold text-dif-black">Formato:</span> ${escapeHtml(p.Formato)}</p>
-        <p class="break-words"><span class="font-semibold text-dif-black">Tono:</span> ${escapeHtml(p.Tono)}</p>
-        <div class="flex gap-2 pt-2">
-          <button onclick="copiarPrompt(${p.rowIndex})"
-            class="flex-1 bg-dif-purple text-white rounded-xl px-3 py-1.5 text-xs font-semibold">Copiar prompt</button>
-          ${esMio ? `<button onclick="eliminar(${p.rowIndex})" class="border border-dif-orange text-dif-orange rounded-xl px-3 py-1.5 text-xs font-semibold">Eliminar</button>` : ''}
+      <div id="${id}" class="hidden mt-3 border-t border-gray-100 pt-3">
+        ${fila}
+        <div class="flex flex-wrap gap-2 pt-3">
+          <button onclick="copiarPrompt(this, ${p.rowIndex})" class="flex items-center gap-1 bg-dif-purple text-white rounded-xl px-3 py-1.5 text-xs font-semibold active:scale-95 transition">
+            <span class="material-icons text-sm">content_copy</span>Copiar
+          </button>
+          ${esMio ? `
+          <button onclick="abrirEditor(${p.rowIndex})" class="flex items-center gap-1 border border-dif-purple text-dif-purple rounded-xl px-3 py-1.5 text-xs font-semibold active:scale-95 transition">
+            <span class="material-icons text-sm">edit</span>Editar
+          </button>
+          <button onclick="pedirEliminar(${p.rowIndex})" class="flex items-center gap-1 border border-dif-orange text-dif-orange rounded-xl px-3 py-1.5 text-xs font-semibold active:scale-95 transition">
+            <span class="material-icons text-sm">delete</span>Eliminar
+          </button>` : ''}
         </div>
       </div>
     </div>`;
 }
 
 function toggleDetalle(id) {
-  document.getElementById(id).classList.toggle('hidden');
+  const abierto = document.getElementById(id).classList.toggle('hidden');
+  document.getElementById('chev-' + id).classList.toggle('abierto', !abierto);
+  const prev = document.querySelector('.detalle-preview[data-for="' + id + '"]');
+  if (prev) prev.classList.toggle('hidden', !abierto);
 }
 
-function copiarPrompt(rowIndex) {
+function copiarPrompt(btn, rowIndex) {
   const p = allPrompts.find(x => x.rowIndex === rowIndex);
   if (!p) { showToast('No se encontró el prompt.', 'error'); return; }
   const texto = `Contexto: ${p.Contexto}\nRol: ${p.Rol}\nAcción: ${p.Accion}\nFormato: ${p.Formato}\nTono: ${p.Tono}`;
-  navigator.clipboard.writeText(texto).then(() => showToast('Prompt copiado al portapapeles.', 'success'));
+  navigator.clipboard.writeText(texto).then(() => {
+    const original = btn.innerHTML;
+    btn.innerHTML = '<span class="material-icons text-sm">check</span>Copiado';
+    setTimeout(() => { btn.innerHTML = original; }, 1500);
+    showToast('Prompt copiado al portapapeles.', 'success');
+  }).catch(() => showToast('No se pudo copiar.', 'error'));
 }
 
-function eliminar(rowIndex) {
+/* ===== Editar ===== */
+function abrirEditor(rowIndex) {
+  const p = allPrompts.find(x => x.rowIndex === rowIndex);
+  if (!p) { showToast('No se encontró el prompt.', 'error'); return; }
+  editRowIndex = rowIndex;
+  document.getElementById('eTitulo').value = p.Titulo || '';
+  document.getElementById('eContexto').value = p.Contexto || '';
+  document.getElementById('eRol').value = p.Rol || '';
+  document.getElementById('eAccion').value = p.Accion || '';
+  document.getElementById('eFormato').value = p.Formato || '';
+  document.getElementById('eTono').value = p.Tono || '';
+  abrirSheet('editModal');
+}
+
+function cerrarEditor() { editRowIndex = null; cerrarSheet('editModal'); }
+
+function guardarEdicion() {
+  if (editRowIndex === null) return;
+  const data = {
+    titulo: document.getElementById('eTitulo').value.trim(),
+    contexto: document.getElementById('eContexto').value.trim(),
+    rol: document.getElementById('eRol').value.trim(),
+    accion: document.getElementById('eAccion').value.trim(),
+    formato: document.getElementById('eFormato').value.trim(),
+    tono: document.getElementById('eTono').value.trim()
+  };
+  if (!data.titulo || !data.contexto || !data.rol || !data.accion || !data.formato || !data.tono) {
+    showToast('Completa todos los campos antes de guardar.', 'error');
+    return;
+  }
+  const btn = document.getElementById('editSaveBtn');
+  const rowIndex = editRowIndex;
+  btn.disabled = true;
+  btn.textContent = 'Guardando...';
+  btn.classList.add('opacity-60', 'cursor-not-allowed');
+
   google.script.run
     .withSuccessHandler((res) => {
-      showToast(res.message, res.status === 'success' ? 'success' : 'error');
-      if (res.status === 'success') cargarPrompts();
+      btn.disabled = false;
+      btn.textContent = 'Guardar cambios';
+      btn.classList.remove('opacity-60', 'cursor-not-allowed');
+      if (res.status === 'success') {
+        // Actualiza en memoria y re-renderiza sin recargar todo.
+        const p = allPrompts.find(x => x.rowIndex === rowIndex);
+        if (p) {
+          p.Titulo = data.titulo; p.Contexto = data.contexto; p.Rol = data.rol;
+          p.Accion = data.accion; p.Formato = data.formato; p.Tono = data.tono;
+        }
+        cerrarEditor();
+        renderMisPrompts();
+        filtrarBiblioteca();
+        showToast(res.message, 'success');
+      } else {
+        showToast(res.message, 'error');
+      }
     })
     .withFailureHandler((err) => {
+      btn.disabled = false;
+      btn.textContent = 'Guardar cambios';
+      btn.classList.remove('opacity-60', 'cursor-not-allowed');
+      showToast('Error al editar: ' + err.message, 'error');
+    })
+    .editarPrompt(rowIndex, currentUser, data);
+}
+
+/* ===== Eliminar (con confirmación) ===== */
+function pedirEliminar(rowIndex) { deleteRowIndex = rowIndex; abrirSheet('confirmModal'); }
+function cerrarConfirm() { deleteRowIndex = null; cerrarSheet('confirmModal'); }
+
+function confirmarEliminar() {
+  if (deleteRowIndex === null) return;
+  const rowIndex = deleteRowIndex;
+  const btn = document.getElementById('confirmDelBtn');
+  btn.disabled = true;
+  btn.textContent = 'Eliminando...';
+  btn.classList.add('opacity-60', 'cursor-not-allowed');
+
+  google.script.run
+    .withSuccessHandler((res) => {
+      btn.disabled = false;
+      btn.textContent = 'Eliminar';
+      btn.classList.remove('opacity-60', 'cursor-not-allowed');
+      cerrarConfirm();
+      showToast(res.message, res.status === 'success' ? 'success' : 'error');
+      if (res.status === 'success') {
+        allPrompts = allPrompts.filter(x => x.rowIndex !== rowIndex);
+        renderMisPrompts();
+        filtrarBiblioteca();
+      }
+    })
+    .withFailureHandler((err) => {
+      btn.disabled = false;
+      btn.textContent = 'Eliminar';
+      btn.classList.remove('opacity-60', 'cursor-not-allowed');
+      cerrarConfirm();
       showToast('Error al eliminar: ' + err.message, 'error');
     })
     .eliminarPrompt(rowIndex, currentUser);
 }
 
+/* ===== Utilidades de hojas modales ===== */
+function abrirSheet(id) {
+  const modal = document.getElementById(id);
+  modal.classList.remove('hidden');
+  requestAnimationFrame(() => {
+    modal.style.opacity = '1';
+    const panel = modal.querySelector('.sheet-panel');
+    if (panel) panel.style.transform = 'translateY(0)';
+  });
+}
+function cerrarSheet(id) {
+  const modal = document.getElementById(id);
+  modal.style.opacity = '0';
+  const panel = modal.querySelector('.sheet-panel');
+  if (panel) panel.style.transform = 'translateY(100%)';
+  setTimeout(() => modal.classList.add('hidden'), 200);
+}
+
 function escapeHtml(str) {
   const div = document.createElement('div');
-  div.textContent = str || '';
+  div.textContent = (str === null || str === undefined) ? '' : str;
   return div.innerHTML;
 }
 
 function showToast(message, type = 'success') {
   const toast = document.getElementById('toast');
   toast.textContent = message;
-  toast.className = `fixed bottom-24 left-1/2 -translate-x-1/2 px-4 py-2 rounded-xl text-sm font-semibold shadow-lg transition-opacity duration-300 z-50 max-w-[90vw] text-center ${
+  toast.className = `fixed bottom-24 left-1/2 -translate-x-1/2 px-4 py-2 rounded-xl text-sm font-semibold shadow-lg transition-opacity duration-300 z-[60] max-w-[90vw] text-center ${
     type === 'success' ? 'bg-dif-green text-dif-black' : 'bg-dif-orange text-white'
   }`;
   toast.style.opacity = '1';
